@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSR Stage 2 Corridor MCA – Weighting Sensitivity (V2)</title>
+<style>
+body{margin:0;background:#ffffff}
+@media (prefers-color-scheme:dark){body{background:#0f172a}}
+#mca-app{--bg:#ffffff;--fg:#1f2937;--mu:#6b7280;--card:#f8fafc;--bd:#e2e8f0;--acc:#0f766e;--ok:#15803d;--bad:#b91c1c;--g:#bbf7d0;--a:#fde68a;--r:#fecaca;--cf:#111827;--track:#e5e7eb;color:var(--fg);background:var(--bg);font:14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;padding:16px;box-sizing:border-box;max-width:1400px;margin:0 auto}
+@media (prefers-color-scheme:dark){#mca-app{--bg:#0f172a;--fg:#e5e7eb;--mu:#94a3b8;--card:#1e293b;--bd:#334155;--acc:#2dd4bf;--ok:#4ade80;--bad:#f87171;--g:#14532d;--a:#713f12;--r:#7f1d1d;--cf:#f8fafc;--track:#334155}}
+#mca-app *{box-sizing:border-box}
+#mca-app h2{font-size:20px;margin:0 0 4px}
+#mca-app h3{font-size:15px;margin:0}
+#mca-app .mca-sub{color:var(--mu);margin:0 0 10px;font-size:13px}
+#mca-app .mca-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:880px){#mca-app .mca-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}#mca-app .mca-right{position:sticky;top:12px;align-self:start}}
+#mca-app .mca-card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+#mca-app .mca-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+#mca-app .mca-tot{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--bd)}
+#mca-app .mca-tot.ok{color:var(--ok)}
+#mca-app .mca-tot.bad{color:var(--bad)}
+#mca-app .mca-row{display:grid;grid-template-columns:minmax(0,1fr) 58px auto;gap:2px 8px;align-items:center;padding:4px 0}
+#mca-app .mca-lab{grid-column:1/-1;font-size:13px}
+#mca-app .mca-lab b{color:var(--acc)}
+#mca-app input[type=range]{width:100%;accent-color:var(--acc)}
+#mca-app input[type=range]:disabled{opacity:.45}
+#mca-app .mca-out{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+#mca-app .mca-lk{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:3px;cursor:pointer}
+#mca-app :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+#mca-app .mca-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#mca-app button{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer}
+#mca-app button:hover{border-color:var(--acc)}
+#mca-app .mca-tw{overflow-x:auto}
+#mca-app table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+#mca-app th,#mca-app td{border:1px solid var(--bd);padding:5px 6px;text-align:center}
+#mca-app th{font-size:12px;font-weight:600}
+#mca-app td.mca-opt{text-align:left;font-weight:600}
+#mca-app td.c-g{background:var(--g);color:var(--cf)}
+#mca-app td.c-a{background:var(--a);color:var(--cf)}
+#mca-app td.c-r{background:var(--r);color:var(--cf)}
+#mca-app td.mca-rk{font-weight:700}
+#mca-app td.up{color:var(--ok);font-weight:600}
+#mca-app td.dn{color:var(--bad);font-weight:600}
+#mca-app .mca-bar{margin:8px 0}
+#mca-app .mca-bl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;gap:6px}
+#mca-app .mca-track{display:flex;height:16px;background:var(--track);border-radius:4px;overflow:hidden}
+#mca-app .mca-seg{height:100%}
+#mca-app .mca-leg{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--mu);margin-top:6px}
+#mca-app .mca-sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
+#mca-app .mca-note{font-size:12px;color:var(--mu);margin:6px 0 0}
+#mca-app .mca-live{font-size:12px;color:var(--mu)}
+@media print{#mca-app .mca-btns,#mca-app .mca-lk{display:none}#mca-app .mca-right{position:static}}
+</style>
+</head>
+<body>
+<div id="mca-app">
+  <h2>HSR Stage 2 corridor MCA – weighting sensitivity</h2>
+  <p class="mca-sub">Drag a slider and the other unlocked weights in that group rebalance proportionally, so each group always totals 100%. Tick Lock to hold a weight fixed. Criteria scores are taken from sheet 4. Results of <em>Multi-criteria analysis_V2fixed.xlsx</em>.</p>
+  <div class="mca-btns">
+    <button type="button" data-act="reset">Reset to workbook weights</button>
+    <button type="button" data-act="equal">Equal weights</button>
+  </div>
+  <div class="mca-grid">
+    <div class="mca-controls"></div>
+    <div class="mca-right">
+      <div class="mca-card">
+        <div class="mca-hd"><h3>Results</h3><span class="mca-live" aria-live="polite"></span></div>
+        <div class="mca-tw"><table><thead><tr class="mca-thr"></tr></thead><tbody class="mca-tb"></tbody></table></div>
+        <div class="mca-leg">
+          <span><span class="mca-sw" style="background:var(--r)"></span>Score ≤ 2</span>
+          <span><span class="mca-sw" style="background:var(--a)"></span>Between 2 and 4</span>
+          <span><span class="mca-sw" style="background:var(--g)"></span>Score ≥ 4</span>
+        </div>
+        <p class="mca-note">Objective columns show the sub-criteria weighted score (1–5). The Change column compares each rank against the current workbook weights.</p>
+      </div>
+      <div class="mca-card">
+        <h3>Weighted score and ranking</h3>
+        <div class="mca-chart"></div>
+        <div class="mca-leg mca-oleg"></div>
+        <p class="mca-note">Bar length is the total weighted score out of 5. Each coloured segment is one objective’s weighted contribution.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+var root=document.getElementById('mca-app');
+var OPTS=['Newcastle-Sydney','Sydney-Canberra','Melbourne-Albury Wadonga','Brisbane-Gold Coast','Newcastle-Port Macquarie'];
+var COL=['#0d9488','#2563eb','#9333ea','#ea580c'];
+var T=100/3;
+var D=[
+ {n:'Economic Development',s:'Econ. Dev.',w:20,c:[
+  ['E1','Access to Jobs',50,[5,3,5,3,4]],
+  ['E2','Regional Economic Output (GRP)',50,[5,5,3,4,1]]]},
+ {n:'Housing & Place',s:'Housing',w:30,c:[
+  ['H1','Connected Housing Capacity',T,[5,3,3,5,3]],
+  ['H2','Scale of Planned Supply',T,[4,5,5,4,4]],
+  ['H3','Housing Pipeline Readiness',T,[4,5,4,4,4]]]},
+ {n:'Network & Transport Benefit',s:'Network',w:15,c:[
+  ['N1','Connectivity and Access to Services',T,[5,5,3,3,2]],
+  ['N2','Contestable Market and Released Capacity',T,[4,5,2,1,2]],
+  ['N3','Network Integration and Future Value',T,[5,5,3,2,2]]]},
+ {n:'Deliverability & Cost',s:'Deliver.',w:35,c:[
+  ['D1','Delivery Constraints',20,[1,1,3,3,4]],
+  ['D2','Planning, Environment and Property',20,[2,2,3,2,2]],
+  ['D3','Delivery Program',20,[1,1,3,5,4]],
+  ['D4','Indicative Cost',20,[1,1,2,5,4]],
+  ['D5','Operational Requirements',20,[5,5,1,1,4]]]}
+];
+var objW,subW,objL,subL;
+function clearLocks(){objL=D.map(function(){return false;});subL=D.map(function(o){return o.c.map(function(){return false;});});}
+function reset(){objW=D.map(function(o){return o.w;});subW=D.map(function(o){return o.c.map(function(c){return c[2];});});clearLocks();}
+function equal(){objW=D.map(function(){return 100/D.length;});subW=D.map(function(o){return o.c.map(function(){return 100/o.c.length;});});clearLocks();}
+function sum(a){return a.reduce(function(s,x){return s+x;},0);}
+function redist(arr,lk,i,v){
+ var ls=0,free=[];
+ for(var j=0;j<arr.length;j++){if(j===i)continue;if(lk[j])ls+=arr[j];else free.push(j);}
+ if(!free.length)return arr;
+ if(!isFinite(v))v=arr[i];
+ v=Math.max(0,Math.min(100-ls,v));
+ var rem=100-ls-v,fs=0;
+ free.forEach(function(j){fs+=arr[j];});
+ var out=arr.slice();out[i]=v;
+ free.forEach(function(j){out[j]=fs>1e-9?arr[j]*rem/fs:rem/free.length;});
+ return out;
+}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function pct(x){return x.toFixed(1)+'%';}
+var uid=0;
+function slider(code,name,onIn,onLk){
+ var row=el('div','mca-row');var id='mca-s'+(uid++);
+ var lab=el('label','mca-lab');lab.htmlFor=id;
+ if(code)lab.appendChild(el('b',null,code+' '));
+ lab.appendChild(document.createTextNode(name));
+ var r=el('input');r.type='range';r.min='0';r.max='100';r.step='0.5';r.id=id;
+ var out=el('output','mca-out');out.setAttribute('for',id);
+ var lk=el('label','mca-lk');var cb=el('input');cb.type='checkbox';
+ cb.setAttribute('aria-label','Lock '+(code?code+' ':'')+name);
+ lk.appendChild(cb);lk.appendChild(document.createTextNode('Lock'));
+ r.addEventListener('input',function(){onIn(r.valueAsNumber);});
+ cb.addEventListener('change',function(){onLk(cb.checked);});
+ row.appendChild(lab);row.appendChild(r);row.appendChild(out);row.appendChild(lk);
+ return {row:row,r:r,out:out,cb:cb};
+}
+reset();
+var ctl=root.querySelector('.mca-controls');
+var oCard=el('div','mca-card');var oh=el('div','mca-hd');
+oh.appendChild(el('h3',null,'Objective weightings'));
+var oTot=el('span','mca-tot');oh.appendChild(oTot);oCard.appendChild(oh);
+var oS=D.map(function(o,i){
+ var s=slider('',o.n,function(v){objW=redist(objW,objL,i,v);render();},function(b){objL[i]=b;render();});
+ var l=s.row.querySelector('.mca-lab');l.style.borderLeft='4px solid '+COL[i];l.style.paddingLeft='6px';
+ oCard.appendChild(s.row);return s;
+});
+ctl.appendChild(oCard);
+var sTot=[];
+var sS=D.map(function(o,oi){
+ var card=el('div','mca-card');var h=el('div','mca-hd');
+ var h3=el('h3',null,o.n+' – sub-criteria');h3.style.borderLeft='4px solid '+COL[oi];h3.style.paddingLeft='6px';
+ h.appendChild(h3);var t=el('span','mca-tot');h.appendChild(t);sTot.push(t);card.appendChild(h);
+ var arr=o.c.map(function(c,si){
+  var s=slider(c[0],c[1],function(v){subW[oi]=redist(subW[oi],subL[oi],si,v);render();},function(b){subL[oi][si]=b;render();});
+  card.appendChild(s.row);return s;
+ });
+ ctl.appendChild(card);return arr;
+});
+var thr=root.querySelector('.mca-thr');
+thr.appendChild(el('th',null,'Corridor'));
+var hW=D.map(function(o){var th=el('th');th.title=o.n;th.appendChild(el('div',null,o.s));var w=el('div');w.style.fontWeight='400';th.appendChild(w);thr.appendChild(th);return w;});
+['Score','Rank','Change'].forEach(function(x){thr.appendChild(el('th',null,x));});
+var tb=root.querySelector('.mca-tb');
+var rows=OPTS.map(function(n){
+ var tr=el('tr');tr.appendChild(el('td','mca-opt',n));
+ var cs=D.map(function(){var td=el('td');tr.appendChild(td);return td;});
+ var sc=el('td'),rk=el('td','mca-rk'),dl=el('td');
+ tr.appendChild(sc);tr.appendChild(rk);tr.appendChild(dl);tb.appendChild(tr);
+ return {cs:cs,sc:sc,rk:rk,dl:dl};
+});
+var ol=root.querySelector('.mca-oleg');
+D.forEach(function(o,i){var s=el('span');var sw=el('span','mca-sw');sw.style.background=COL[i];s.appendChild(sw);s.appendChild(document.createTextNode(o.n));ol.appendChild(s);});
+function compute(ow,sw){
+ var os=D.map(function(o,oi){return OPTS.map(function(_,k){var s=0;o.c.forEach(function(c,si){s+=sw[oi][si]/100*c[3][k];});return s;});});
+ var tot=OPTS.map(function(_,k){var s=0;D.forEach(function(o,oi){s+=ow[oi]/100*os[oi][k];});return s;});
+ var rk=tot.map(function(x){return 1+tot.filter(function(y){return y>x+1e-9;}).length;});
+ return {os:os,tot:tot,rk:rk};
+}
+var BASE=compute(objW,subW);
+function cls(v){return v<=2+1e-9?'c-r':(v>=4-1e-9?'c-g':'c-a');}
+function upd(s,v,locked,hasFree){s.r.value=String(v);s.out.textContent=pct(v);s.r.disabled=locked||!hasFree;s.cb.checked=locked;s.r.setAttribute('aria-valuetext',pct(v));}
+function totBadge(b,t){b.textContent='Total '+pct(t);b.className='mca-tot '+(Math.abs(t-100)<0.05?'ok':'bad');}
+var live=root.querySelector('.mca-live');var ch=root.querySelector('.mca-chart');
+function render(){
+ totBadge(oTot,sum(objW));
+ oS.forEach(function(s,i){upd(s,objW[i],objL[i],objL.some(function(l,j){return j!==i&&!l;}));});
+ sS.forEach(function(arr,oi){totBadge(sTot[oi],sum(subW[oi]));arr.forEach(function(s,si){upd(s,subW[oi][si],subL[oi][si],subL[oi].some(function(l,j){return j!==si&&!l;}));});});
+ var R=compute(objW,subW);
+ hW.forEach(function(w,i){w.textContent=pct(objW[i]);});
+ rows.forEach(function(r,k){
+  D.forEach(function(o,oi){var v=R.os[oi][k];r.cs[oi].textContent=v.toFixed(2);r.cs[oi].className=cls(v);});
+  r.sc.textContent=R.tot[k].toFixed(2);r.rk.textContent=String(R.rk[k]);
+  var d=BASE.rk[k]-R.rk[k];
+  r.dl.textContent=d>0?'▲ '+d:(d<0?'▼ '+(-d):'–');
+  r.dl.className=d>0?'up':(d<0?'dn':'');r.dl.title='Workbook rank '+BASE.rk[k];
+ });
+ ch.textContent='';
+ var ord=OPTS.map(function(_,k){return k;}).sort(function(a,b){return (R.tot[b]-R.tot[a])||(a-b);});
+ ord.forEach(function(k){
+  var b=el('div','mca-bar');var bl=el('div','mca-bl');
+  bl.appendChild(el('span',null,'#'+R.rk[k]+'  '+OPTS[k]));bl.appendChild(el('strong',null,R.tot[k].toFixed(2)));b.appendChild(bl);
+  var trk=el('div','mca-track');trk.setAttribute('role','img');trk.setAttribute('aria-label',OPTS[k]+' score '+R.tot[k].toFixed(2)+' out of 5');
+  D.forEach(function(o,oi){var c=objW[oi]/100*R.os[oi][k];var sg=el('div','mca-seg');sg.style.width=(c/5*100)+'%';sg.style.background=COL[oi];sg.title=o.n+': '+c.toFixed(2);trk.appendChild(sg);});
+  b.appendChild(trk);ch.appendChild(b);
+ });
+ var top=ord[0];live.textContent='Rank 1: '+OPTS[top]+' ('+R.tot[top].toFixed(2)+')';
+}
+root.querySelectorAll('[data-act]').forEach(function(b){b.addEventListener('click',function(){if(b.getAttribute('data-act')==='reset')reset();else equal();render();});});
+render();
+})();
+</script>
+</body>
+</html>
